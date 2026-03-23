@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Confirmed</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #e9ecef; }
+        .receipt { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); text-align: center; max-width: 500px; }
+        .checkmark { font-size: 60px; color: #28a745; margin-bottom: 20px; }
+        h1 { color: #333; margin-bottom: 10px; }
+        .order-id { font-family: monospace; background: #eee; padding: 5px 10px; border-radius: 4px; color: #555; }
+        .btn { display: inline-block; margin-top: 30px; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
+        .btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+<div class="receipt">
+    <div class="checkmark">✔</div>
+    <h1>Payment Successful!</h1>
+    <p>Thank you for your purchase. Your inventory has been updated and your items are ready for shipment.</p>
+
+    <p>Order Reference: <br>
+        <strong class="order-id" th:text="${orderID}">ORD-000000</strong>
+    </p>
+
+
+    <a th:href="@{/order/menu}">Return to Menu</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nardo's One-Stop Shop</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .menu-item { background: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .price { color: #2e7d32; font-weight: bold; }
+        button { background-color: #ffc107; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #ffb300; }
+    </style>
+</head>
+<body>
+<h1>🔥 Nardo's One-Stop Shop</h1>
+<div th:each="product : ${products}" class="menu-item">
+    <div>
+        <strong th:text="${product.name}">Product Name</strong><br>
+        <span class="price" th:text="'$' + ${product.price}">$0.00</span>
+        <p style="font-size: 0.8em; color: gray;" th:text="${product.description}"></p>
+    </div>
+
+    <form action="/order/checkout" method="post">
+        <input type="hidden" name="productID" th:value="${product.productID}">
+        <input type="number" name="qty" value="1" min="1" style="width: 40px;">
+        <button type="submit">Place Order</button>
+    </form>
+</div>
+</body>
+</html>
