@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Your Cart')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-customer}"></div>
+<div class="container my-5">
+    <h2 class="page-title text-center"><i class="fa-solid fa-cart-shopping"></i> Your Cart</h2>
+    
+    <div th:if="${param.error != null and param.error[0] == 'OutOfStock'}" class="alert alert-danger text-center">
+        <strong>Wait!</strong> One or more items in your cart is out of stock. Please remove it or order fewer.
+    </div>
+    
+    <div th:if="${param.error != null and param.error[0] == 'PaymentDenied'}" class="alert alert-danger text-center">
+        <strong>Error!</strong> Payment was declined. Please try again.
+    </div>
+
+    <div th:if="${cart.items.isEmpty()}" class="text-center mt-5">
+        <p class="fs-4 text-muted">Your cart is empty.</p>
+        <a href="/order/menu" class="btn btn-primary btn-lg mt-3"><i class="fa-solid fa-hotdog"></i> Browse Menu</a>
+    </div>
+
+    <div th:if="${!cart.items.isEmpty()}">
+        <div class="table-responsive bg-white rounded shadow-sm p-3 mb-4 border border-warning border-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center" style="width: 150px;">Quantity</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cart.items}">
+                        <td class="fw-bold" th:text="${item.product.name}"></td>
+                        <td class="text-center text-success fw-bold">$<span th:text="${item.product.price}"></span></td>
+                        <td>
+                            <form th:action="@{/cart/update}" method="post" class="d-flex">
+                                <input type="hidden" name="productID" th:value="${item.product.productID}" />
+                                <input type="number" name="qty" class="form-control form-control-sm text-center me-2" th:value="${item.quantity}" min="1" th:max="${item.product.currentQuantity}" onchange="this.form.submit()" />
+                            </form>
+                        </td>
+                        <td class="text-end fw-bold text-danger">$<span th:text="${item.getTotalPrice()}"></span></td>
+                        <td class="text-center">
+                            <form th:action="@{/cart/remove}" method="post">
+                                <input type="hidden" name="productID" th:value="${item.product.productID}" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold fs-5">Grand Total:</td>
+                        <td class="text-end fw-bold fs-4 text-danger">$<span th:text="${cart.getTotalValue()}"></span></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="/order/menu" class="btn btn-outline-dark"><i class="fa-solid fa-arrow-left"></i> Keep Shopping</a>
+            <a href="/order/checkout" class="btn btn-success btn-lg">Checkout <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

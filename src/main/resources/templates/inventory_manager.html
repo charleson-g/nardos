@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inventory Manager')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-warning mb-0" style="text-shadow: 1px 1px 2px #333;"><i class="fa-solid fa-boxes-stacked"></i> Inventory Manager</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fa-solid fa-plus"></i> Add New Product
+        </button>
+    </div>
+
+    <div th:if="${param.message != null}" class="alert alert-success">
+        <i class="fa-solid fa-check-circle"></i> <span th:text="${param.message}"></span>
+    </div>
+    <div th:if="${param.error != null}" class="alert alert-danger">
+        <i class="fa-solid fa-triangle-exclamation"></i> <span th:text="${param.error}"></span>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="card shadow-sm border-dark">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Current Menu & Stock</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 text-center align-middle">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Available Qty</th>
+                            <th>Min. Threshold</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${products}" th:classappend="${p.isBelowThreshold()} ? 'table-danger' : ''">
+                            <td th:text="${p.productID}"></td>
+                            <td class="fw-bold text-start" th:text="${p.name}"></td>
+                            <td class="text-start small" th:text="${p.description}"></td>
+                            <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}"></td>
+                            <td>
+                                <span class="fs-5 fw-bold" th:classappend="${p.isBelowThreshold()} ? 'text-danger' : 'text-success'" th:text="${p.currentQuantity}"></span>
+                            </td>
+                            <td th:text="${p.safetyThreshold}"></td>
+                            <td>
+                                <span class="badge bg-danger" th:if="${p.currentQuantity == 0}">Out of Stock</span>
+                                <span class="badge bg-warning text-dark" th:if="${p.currentQuantity > 0 and p.isBelowThreshold()}">Low Stock</span>
+                                <span class="badge bg-success" th:if="${!p.isBelowThreshold()}">In Stock</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/edit-product/{id}(id=${p.productID})}" class="btn btn-sm btn-outline-dark">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding Product -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content border-primary">
+      <form th:action="@{/admin/inventory/add}" method="post">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="addProductModalLabel"><i class="fa-solid fa-plus"></i> Add New Menu Item</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Internal Item ID</label>
+                <input type="text" name="productID" class="form-control" placeholder="e.g. P020" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Display Name</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Spicy Chicken Dog" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Customer Description</label>
+                <input type="text" name="description" class="form-control" placeholder="e.g. Wrapped in bacon and cheese" required>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Price ($)</label>
+                    <input type="number" name="price" class="form-control" min="0.01" step="0.01" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Initial Qty</label>
+                    <input type="number" name="quantity" class="form-control" min="0" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Low Alert</label>
+                    <input type="number" name="safetyThreshold" class="form-control" min="1" value="10" required>
+                </div>
+            </div>
+            <small class="text-muted"><i class="fa-solid fa-circle-info"></i> Note: Because we use a 1:1 simplified inventory system, enter the physical quantity of this item you estimate you can make with your current raw ingredients.</small>
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Save Product</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Edit Product')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="mb-4 text-warning" style="text-shadow: 1px 1px 2px #333;"><i class="fa-solid fa-pen-to-square"></i> Edit Product</h2>
+            
+            <div class="card p-4 shadow-sm border-dark">
+                <form th:action="@{/admin/save-product}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Product ID</label>
+                        <input type="text" name="productID" class="form-control bg-light" th:value="${product.productID}" readonly>
+                        <div class="form-text">Product ID cannot be changed.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Product Name</label>
+                        <input type="text" name="name" class="form-control" th:value="${product.name}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Current Stock Level</label>
+                        <input type="number" class="form-control bg-light" th:value="${product.currentQuantity}" readonly>
+                        <div class="form-text">Use the Owner Dashboard to process deliveries or record stock reductions.</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Price ($)</label>
+                            <input type="number" name="price" class="form-control" th:value="${product.price}" step="0.01" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Safety Threshold</label>
+                            <input type="number" name="safetyThreshold" class="form-control" th:value="${product.safetyThreshold}" required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="isAvailable" name="isAvailable" th:checked="${product.available}">
+                                <label class="form-check-label fw-bold" for="isAvailable">Available</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Description (Optional)</label>
+                        <textarea name="description" class="form-control" rows="3" th:text="${product.description}"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/admin/dashboard" class="btn btn-outline-danger">Cancel</a>
+                        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-floppy-disk"></i> Save Product</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="my-5"></div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

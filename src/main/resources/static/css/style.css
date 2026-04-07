@@ -1,0 +1,125 @@
+/* Nardo's Hotdog Theme */
+:root {
+    --nardo-yellow: #FFD43A;
+    --nardo-yellow-light: #FFE47A;
+    --nardo-red: #D11219;
+    --nardo-red-hover: #A00D12;
+    --nardo-green: #B7E938;
+    --nardo-green-hover: #98C42A;
+    --nardo-cream: #FAF2CC;
+    --nardo-dark: #333333;
+}
+
+body {
+    background-color: var(--nardo-cream);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--nardo-dark);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+.navbar {
+    background-color: var(--nardo-yellow) !important;
+    border-bottom: 4px solid var(--nardo-green);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 900;
+    color: var(--nardo-red) !important;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0px white;
+}
+
+.nav-link {
+    font-weight: bold;
+    color: var(--nardo-dark) !important;
+}
+
+.nav-link:hover {
+    color: var(--nardo-red) !important;
+}
+
+.btn-primary {
+    background-color: var(--nardo-red);
+    border-color: var(--nardo-red);
+    color: white;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: var(--nardo-red-hover);
+    border-color: var(--nardo-red-hover);
+}
+
+.btn-success {
+    background-color: var(--nardo-green);
+    border-color: var(--nardo-green);
+    color: var(--nardo-dark);
+    font-weight: bold;
+}
+
+.btn-success:hover {
+    background-color: var(--nardo-green-hover);
+    border-color: var(--nardo-green-hover);
+}
+
+.card {
+    border: 3px solid var(--nardo-yellow);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    background-color: white;
+}
+
+.card-header {
+    background-color: var(--nardo-yellow-light);
+    border-bottom: 2px solid var(--nardo-yellow);
+    font-weight: bold;
+    color: var(--nardo-dark);
+}
+
+.admin-panel {
+    border-top: 5px solid var(--nardo-dark);
+}
+
+.badge-nardo {
+    background-color: var(--nardo-yellow);
+    color: var(--nardo-red);
+    border: 1px solid var(--nardo-red);
+}
+
+/* Custom Cart styles */
+.cart-total {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--nardo-red);
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--nardo-green);
+    box-shadow: 0 0 0 0.2rem rgba(183, 233, 56, 0.25);
+}
+
+/* Page Headers */
+.page-title {
+    color: var(--nardo-red);
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(255, 212, 58, 0.5);
+    margin-bottom: 30px;
+}

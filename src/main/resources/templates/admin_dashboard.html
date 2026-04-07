@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+
+<div class="container my-4">
+    <h2 class="mb-4 text-warning" style="text-shadow: 1px 1px 2px #333;"><i class="fa-solid fa-store"></i> Owner Dashboard</h2>
+    
+    <div th:if="${param.message != null}" class="alert alert-success mt-2">
+        <i class="fa-solid fa-check-circle"></i> <span th:text="${param.message}"></span>
+    </div>
+    <div th:if="${param.error != null}" class="alert alert-danger mt-2">
+        <i class="fa-solid fa-triangle-exclamation"></i> <span th:text="${param.error}"></span>
+    </div>
+
+    <!-- Active Dismissible Alerts -->
+    <div th:if="${not #lists.isEmpty(alerts)}" class="mb-4">
+        <div th:each="alert : ${alerts}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-bell text-danger me-2"></i>
+            <span th:text="${alert.message}" class="fw-bold"></span>
+            <a th:href="@{/admin/resolve-alert/{id}(id=${alert.alertID})}" class="btn-close" aria-label="Close"></a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Main Dashboard Summary (Top Row) -->
+        <div class="col-12">
+            <div class="card shadow-sm border-dark">
+                <div class="card-header bg-dark text-white py-2">
+                    <h6 class="mb-0"><i class="fa-solid fa-chart-line text-warning"></i> Quick Summary</h6>
+                </div>
+                <div class="card-body py-2">
+                    <div class="row text-center g-2 align-items-center">
+                        <div class="col-md-4">
+                            <div class="p-2 border-end">
+                                <h3 class="fw-bold text-primary mb-0" th:text="${totalProducts}">0</h3>
+                                <span class="text-muted small"><i class="fa-solid fa-boxes-stacked"></i> Total Products</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-2 border-end" th:classappend="${lowStockCount > 0 ? 'bg-danger text-white rounded' : ''}">
+                                <h3 class="fw-bold mb-0" th:classappend="${lowStockCount > 0 ? 'text-white' : 'text-success'}" th:text="${lowStockCount}">0</h3>
+                                <span class="small" th:classappend="${lowStockCount > 0 ? 'text-white' : 'text-muted'}"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock Items</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-2">
+                                <h3 class="fw-bold text-info mb-0" th:text="${totalOrders}">0</h3>
+                                <span class="text-muted small"><i class="fa-solid fa-file-invoice-dollar"></i> New Orders</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Orders Management -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-info h-100">
+                <div class="card-header bg-info text-dark">
+                    <h5 class="mb-0"><i class="fa-solid fa-list-check"></i> Manage Online Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 text-center align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Time</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="o : ${orders}">
+                                    <td th:text="${o.orderId.substring(0, 8) + '...'}"></td>
+                                    <td th:text="${#temporals.format(o.orderTimestamp, 'HH:mm - MM/dd')}"></td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(o.totalAmount, 1, 2)}"></td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${o.status == 'PAID'} ? 'bg-success' : (${o.status == 'PREPARING'} ? 'bg-warning text-dark' : 'bg-primary')"
+                                              th:text="${o.status}"></span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{/admin/orders/update-status}" method="post" class="d-flex justify-content-center align-items-center">
+                                            <input type="hidden" name="orderID" th:value="${o.orderId}">
+                                            <select name="newStatus" class="form-select form-select-sm me-2" style="width: auto;">
+                                                <option value="PAID" th:selected="${o.status == 'PAID'}">Paid (New)</option>
+                                                <option value="PREPARING" th:selected="${o.status == 'PREPARING'}">Preparing</option>
+                                                <option value="READY" th:selected="${o.status == 'READY'}">Ready</option>
+                                                <option value="COLLECTED" th:selected="${o.status == 'COLLECTED'}">Collected</option>
+                                                <option value="CANCELLED" th:selected="${o.status == 'CANCELLED'}">Cancel</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-info">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(orders)}">
+                                    <td colspan="5" class="text-center text-muted py-4">No active orders found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Actions -->
+        <div class="col-lg-4">
+            
+            <!-- Record POS Sale -->
+            <div class="card shadow-sm border-success mb-4">
+                <div class="card-header bg-success text-dark">
+                    <h5 class="mb-0"><i class="fa-solid fa-cash-register"></i> Record Local Sale</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/record-sale}" method="post">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Product</label>
+                            <select name="productID" class="form-select form-select-sm" required>
+                                <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.name}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Quantity Sold</label>
+                            <input type="number" name="quantity" class="form-control form-control-sm" min="1" value="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-success w-100"><i class="fa-solid fa-check"></i> Register Sale</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Process Delivery -->
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-truck-ramp-box"></i> Receive Delivery</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/process-delivery}" method="post">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Supplier</label>
+                            <input type="text" name="supplier" class="form-control form-control-sm" placeholder="e.g. Sysco" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Product Arriving</label>
+                            <select name="productID" class="form-select form-select-sm" required>
+                                <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.name}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Quantity Received</label>
+                            <input type="number" name="quantity" class="form-control form-control-sm" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fa-solid fa-plus"></i> Add Inventory</button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

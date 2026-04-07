@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Track Order')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-customer}"></div>
+<div class="container my-5">
+    <h2 class="page-title text-center"><i class="fa-solid fa-satellite-dish"></i> Track Your Order</h2>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card p-4 shadow-sm text-center">
+                <!-- Search Form -->
+                <form th:if="${orderId == null}" onsubmit="event.preventDefault(); window.location.href='/order/track/' + document.getElementById('searchId').value;" class="mb-4">
+                    <p class="text-muted">Enter your Order ID to track progress.</p>
+                    <div class="input-group input-group-lg">
+                        <input type="text" id="searchId" class="form-control border-danger" placeholder="e.g. ORD-123456789" required>
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-magnifying-glass"></i> Track</button>
+                    </div>
+                </form>
+
+                <!-- Results View -->
+                <div th:if="${orderId != null}">
+                    <h5 class="mb-4">Order <span class="text-muted">#<span th:text="${orderId}"></span></span></h5>
+
+                    <div th:if="${status == 'NOT_FOUND'}" class="alert alert-danger py-4">
+                        <i class="fa-solid fa-circle-xmark fa-3x mb-3 text-danger"></i>
+                        <h4>Order Not Found!</h4>
+                        <p>We could not find an order with that ID.</p>
+                        <a href="/order/track" class="btn btn-outline-danger mt-2">Try Again</a>
+                    </div>
+
+                    <div th:if="${status != 'NOT_FOUND'}">
+                        <div class="display-1 text-warning mb-3">
+                            <i class="fa-solid fa-clock position-relative" th:if="${status == 'PAID'}"></i>
+                            <i class="fa-solid fa-fire-burner text-danger" th:if="${status == 'PREPARING'}"></i>
+                            <i class="fa-solid fa-bag-shopping text-success" th:if="${status == 'READY'}"></i>
+                            <i class="fa-regular fa-face-smile-wink text-primary" th:if="${status == 'COLLECTED'}"></i>
+                        </div>
+                        
+                        <h3 class="mb-4">
+                            Status: 
+                            <span class="badge" th:classappend="${status == 'READY' ? 'bg-success' : status == 'COLLECTED' ? 'bg-primary' : 'bg-warning text-dark'}" th:text="${status}"></span>
+                        </h3>
+
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                                 th:style="${'width: ' + (status == 'PAID' ? '25%' : status == 'PREPARING' ? '50%' : status == 'READY' ? '100%' : status == 'COLLECTED' ? '100%' : '0%')}">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-2 small text-muted fw-bold">
+                            <span>Paid</span>
+                            <span>Prep</span>
+                            <span>Ready</span>
+                        </div>
+
+                        <div th:if="${status == 'READY'}" class="alert alert-success mt-4 fw-bold">
+                            <i class="fa-solid fa-bell"></i> Your food is ready for pickup!
+                        </div>
+                        
+                        <a href="/order/menu" class="btn btn-outline-dark mt-4 w-100">Order More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

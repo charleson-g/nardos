@@ -1,29 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Order Confirmed</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #e9ecef; }
-        .receipt { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); text-align: center; max-width: 500px; }
-        .checkmark { font-size: 60px; color: #28a745; margin-bottom: 20px; }
-        h1 { color: #333; margin-bottom: 10px; }
-        .order-id { font-family: monospace; background: #eee; padding: 5px 10px; border-radius: 4px; color: #555; }
-        .btn { display: inline-block; margin-top: 30px; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
-        .btn:hover { background-color: #0056b3; }
-    </style>
-</head>
+<head th:replace="~{fragments/layout :: head('Order Confirmed')}"></head>
 <body>
-<div class="receipt">
-    <div class="checkmark">✔</div>
-    <h1>Payment Successful!</h1>
-    <p>Thank you for your purchase. Your inventory has been updated and your items are ready for shipment.</p>
-
-    <p>Order Reference: <br>
-        <strong class="order-id" th:text="${orderID}">ORD-000000</strong>
-    </p>
-
-
-    <a th:href="@{/order/menu}">Return to Menu</a>
+<div th:replace="~{fragments/layout :: navbar-customer}"></div>
+<div class="container my-5 text-center">
+    <div class="card p-5 shadow-sm border-success" style="max-width: 600px; margin: 0 auto;">
+        <i class="fa-solid fa-circle-check text-success" style="font-size: 5rem;"></i>
+        <h2 class="page-title mt-4 mb-2 text-success">Payment Successful!</h2>
+        <p class="fs-5">Your order has been placed.</p>
+        
+        <div class="bg-light p-3 rounded mt-3 mb-4 text-start border">
+            <p><strong>Order ID:</strong> <span th:text="${orderId}">#</span></p>
+            <p><strong>Total Paid:</strong> $<span th:text="${order.totalAmount}">0.00</span></p>
+            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-primary" th:text="${order.status}">PAID</span></p>
+        </div>
+        
+        <a th:href="@{/order/track/{id}(id=${orderId})}" class="btn btn-outline-danger btn-lg w-100 fw-bold">
+            <i class="fa-solid fa-location-crosshairs"></i> Track Order
+        </a>
+        <a href="/order/menu" class="btn btn-link mt-3 text-muted">Return to Menu</a>
+    </div>
 </div>
+<div th:replace="~{fragments/layout :: footer}"></div>
 </body>
 </html>

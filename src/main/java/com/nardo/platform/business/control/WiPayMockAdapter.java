@@ -17,6 +17,8 @@ public class WiPayMockAdapter implements PaymentGatewayAdapter {
         try {
             Thread.sleep(800);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread was interrupted during WiPay handshake delay");
         }
 
         System.out.println("External Gateway (WiPay): Authorizing $" + amount + "...");

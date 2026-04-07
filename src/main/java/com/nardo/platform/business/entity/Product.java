@@ -3,15 +3,7 @@ package com.nardo.platform.business.entity;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
-
-/**
- * Entity class representing a food or drink item in Nardo's Shop.
- * This class handles the "Soft Lock"and threshold logic.
- */
-
 @Entity
-
-
 public class Product {
 
     @Id
@@ -21,12 +13,10 @@ public class Product {
     private double price;
     private int currentQuantity;
     private int safetyThreshold;
-
-    // Tracks stock temporarily reserved during the 5-minute checkout window
     private int softLockedQuantity;
     private LocalDateTime lockTimeStamp;
+    private boolean isAvailable = true;
 
-    // Default Constructor for JPA
     public Product() {}
 
     public Product(String productID, String name, String description, double price, int qty, int threshold) {
@@ -39,11 +29,6 @@ public class Product {
         this.softLockedQuantity = 0;
     }
 
-    /**
-     * Temporarily reserves stock for 5 minutes  during checkout.
-     * Prevents "no-show" losses and ensures inventory availability.
-     */
-
     public boolean applySoftLock(int qty) {
         if ((currentQuantity - softLockedQuantity) >= qty) {
             this.softLockedQuantity += qty;
@@ -53,39 +38,35 @@ public class Product {
         return false;
     }
 
-    /**
-     * Permanently deducts stock after a successful "Sure Money Payment"
-     */
     public void deductStock(int qty) {
         this.currentQuantity -= qty;
-        this.softLockedQuantity -= qty; // Convert soft lock to permanent deduction
+        this.softLockedQuantity -= qty;
     }
 
-    /**
-     * Releases the soft lock if a payment is denied or a gateway timeout occurs
-     */
     public void releaseLock(int qty) {
         this.softLockedQuantity -= qty;
     }
 
-    /**
-     * Check if the item has fallen below its safety limit
-     */
-    public boolean isBelowThreshold(int qty) {
+    public boolean isBelowThreshold() {
         return this.currentQuantity <= this.safetyThreshold;
     }
 
-    // Getters and Setters
+    public boolean isAvailable() { return isAvailable; }
+    public void setAvailable(boolean available) { this.isAvailable = available; }
+
     public String getProductID() {return productID;}
+    public String getId() {return productID;}
     public String getName() {return name;}
+    public void setName(String name) { this.name = name; }
     public double getPrice() {return price;}
+    public void setPrice(double price) { this.price = price; }
     public String getDescription() {return description;}
+    public void setDescription(String description) { this.description = description; }
+    public LocalDateTime getLockTimeStamp() { return lockTimeStamp; }
     public int getSoftLockedQuantity() { return softLockedQuantity; }
     public int getSafetyThreshold() { return safetyThreshold; }
     public int getCurrentQuantity() {return currentQuantity;}
     public void setCurrentQuantity(int currentQuantity) {
         this.currentQuantity = currentQuantity;
     }
-
-
 }

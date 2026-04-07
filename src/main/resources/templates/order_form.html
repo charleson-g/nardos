@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Checkout')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar-customer}"></div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="page-title text-center"><i class="fa-solid fa-clock"></i> Select Pickup Time</h2>
+            
+            <div class="card p-4 shadow-sm">
+                <form th:action="@{/order/checkout}" method="post">
+                    <div class="mb-4 text-center">
+                        <p class="fs-5">Your Total: <span class="fw-bold text-danger fs-4">$<span th:text="${cart.getTotalValue()}"></span></span></p>
+                        <p class="text-muted">Items: <span th:text="${cart.totalQuantity}"></span></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="pickupTime" class="form-label fw-bold">Available 15-Minute Slots</label>
+                        <select id="pickupTime" name="pickupTime" class="form-select form-select-lg border-success" required>
+                            <option value="" disabled selected>-- Select a Time --</option>
+                            <option th:each="slot : ${slots}" 
+                                    th:value="${slot.startTime}" 
+                                    th:text="${#temporals.format(slot.startTime, 'MM/dd hh:mm a') + ' to ' + #temporals.format(slot.endTime, 'hh:mm a')}">
+                            </option>
+                        </select>
+                        <div class="form-text text-success"><i class="fa-solid fa-circle-check"></i> Securing a slot guarantees fast pickup!</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-lock"></i> Reserve Time & Pay</button>
+                        <a href="/cart" class="btn btn-outline-secondary">Go Back</a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="alert alert-warning mt-3 text-center small">
+                <i class="fa-solid fa-triangle-exclamation"></i> Items are not reserved until payment is completed!
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

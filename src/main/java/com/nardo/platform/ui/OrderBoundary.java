@@ -1,9 +1,10 @@
 package com.nardo.platform.ui;
 
 import com.nardo.platform.business.control.OrderController;
-import com.nardo.platform.business.control.PaymentGatewayAdapter;
+import com.nardo.platform.business.entity.Cart;
 import com.nardo.platform.business.entity.Product;
-import com.nardo.platform.persistence.InventoryRepository;
+import com.nardo.platform.business.entity.Order;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,65 +12,88 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Boundary class representing the Web Interface for the Customer.
- * Handles UI navigation and delegates business logic to the OrderController.
- */
-
 @Controller
 @RequestMapping("/order")
-
-
 public class OrderBoundary {
 
-    @Autowired
-    private OrderController orderController;
+    private final OrderController orderController;
 
     @Autowired
-    private InventoryRepository inventoryRepo; // Used only to fetch data for display
+    public OrderBoundary(OrderController orderController) {
+        this.orderController = orderController;
+    }
 
-    @Autowired
-    private PaymentGatewayAdapter paymentAdapter;
+    private Cart getCart(HttpSession session) {
+        Cart cart = (Cart) session.getAttribute("cart");
+        if (cart == null) {
+            cart = new Cart();
+            session.setAttribute("cart", cart);
+        }
+        return cart;
+    }
 
-    /**
-     * Renders the available menu items for the student
-     */
     @GetMapping("/menu")
     public String displayMenu(Model model) {
-        List<Product> items = inventoryRepo.findAll();
+        List<Product> items = orderController.getAllProducts();
         model.addAttribute("products", items);
         return "menu"; // Points to menu.html
     }
 
-    /**
-     * Captures order selection and initiates the "Soft Lock".
-     */
-    @PostMapping("/checkout")
-    public String handleCheckout(@RequestParam String productID, @RequestParam int qty, Model model) {
-        boolean locked = orderController.initiateOrder(productID, qty);
-
-        if (locked) {
-            model.addAttribute("productID", productID);
-            model.addAttribute("qty", qty);
-            return "payment"; // Redirects to the payment entry boundary
+    @GetMapping("/checkout")
+    public String showCheckout(HttpSession session, Model model) {
+        Cart cart = getCart(session);
+        if (cart.getItems().isEmpty()) {
+            return "redirect:/order/menu";
         }
-        return "redirect:/order/menu?error=OutOfStock";
+        model.addAttribute("cart", cart);
+        model.addAttribute("slots", orderController.getAvailableSlots());
+        return "order_form";
     }
 
-    /**
-     * Handles the secure payment handshake.
-     */
-    @PostMapping("/pay")
-    public String capturePaymentDetails(@RequestParam String productID, @RequestParam int qty, @RequestParam double amount) {
-        // Delegate the handshake to the Adapter via the Controller logic
-        boolean authorized = paymentAdapter.authorize(amount, "Mock-Card-Details");
+    @PostMapping("/checkout")
+    public String handleCheckout(@RequestParam String pickupTime, HttpSession session, Model model) {
+        Cart cart = getCart(session);
+        if (cart.getItems().isEmpty()) return "redirect:/order/menu";
 
-                if (authorized) {
-                    // Confirm the order and commit inventory deduction
-                    orderController.processPaymentSuccess("ORD-" + System.currentTimeMillis(), productID, qty, amount, "TXN-SUCCESS");
-                    return "confirmation";
-                }
-                return "redirect:/order/menu?error=PaymentDenied";
+        boolean locked = orderController.initiateOrder(cart);
+
+        if (locked) {
+            model.addAttribute("cart", cart);
+            model.addAttribute("pickupTimeStr", pickupTime);
+            return "payment"; 
+        }
+        return "redirect:/cart?error=OutOfStock";
+    }
+
+    @PostMapping("/pay")
+    public String capturePaymentDetails(@RequestParam String cardNum, @RequestParam String pickupTimeStr, HttpSession session, Model model) {
+        Cart cart = getCart(session);
+        if (cart.getItems().isEmpty()) return "redirect:/order/menu";
+
+        Order order = orderController.processPayment(cart, cart.getTotalValue(), cardNum, pickupTimeStr);
+        if (order != null) {
+            session.removeAttribute("cart");
+            model.addAttribute("order", order);
+            model.addAttribute("orderId", order.getOrderId());
+            return "confirmation";
+        }
+        return "redirect:/cart?error=PaymentDenied";
+    }
+
+    @GetMapping("/track")
+    public String trackOrderPage() {
+        return "order_tracking_view";
+    }
+
+    @GetMapping("/track/{id}")
+    public String showOrderStatus(@PathVariable String id, Model model) {
+        String status = orderController.checkOrderStatus(id);
+        Order order = orderController.getOrder(id);
+        model.addAttribute("status", status);
+        model.addAttribute("orderId", id);
+        model.addAttribute("order", order);
+        return "order_tracking_view";
     }
 
 }
+
