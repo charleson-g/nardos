@@ -47,7 +47,9 @@ public class AdminDashboardBoundary {
         model.addAttribute("alerts", stockMonitorController.getActiveAlerts());
         model.addAttribute("totalProducts", products.size());
         model.addAttribute("lowStockCount", lowStockCount);
-        model.addAttribute("totalOrders", orderController.getAllOrders().size());
+        model.addAttribute("totalOrders", orderController.getAllOrders().stream()
+                .filter(o -> "PENDING".equals(o.getStatus()))
+                .count());
         
         return "admin_dashboard";
     }
@@ -123,7 +125,7 @@ public class AdminDashboardBoundary {
 
     @GetMapping("/inventory")
     public String showInventory(Model model) {
-        model.addAttribute("products", orderController.getAllProducts());
+        model.addAttribute("products", updateController.getAllProductsForAdmin());
         return "inventory_manager";
     }
 
