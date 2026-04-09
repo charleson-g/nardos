@@ -2,6 +2,8 @@ package com.nardo.platform.ui;
 
 import com.nardo.platform.business.control.*;
 import com.nardo.platform.business.entity.*;
+import com.nardo.platform.security.AccessController;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +23,7 @@ public class AdminDashboardBoundary {
     private final OrderController orderController;
     private final ReportController reportController;
     private final StockMonitorController stockMonitorController;
+    private final AccessController accessController;
 
     @Autowired
     public AdminDashboardBoundary(ProductUpdateController updateController, 
@@ -28,17 +31,25 @@ public class AdminDashboardBoundary {
                                   SalesController salesController, 
                                   OrderController orderController,
                                   ReportController reportController,
-                                  StockMonitorController stockMonitorController) {
+                                  StockMonitorController stockMonitorController,
+                                  AccessController accessController) {
         this.updateController = updateController;
         this.deliveryController = deliveryController;
         this.salesController = salesController;
         this.orderController = orderController;
         this.reportController = reportController;
         this.stockMonitorController = stockMonitorController;
+        this.accessController = accessController;
     }
 
     @GetMapping("/dashboard")
-    public String showDashboard(Model model) {
+    public String showDashboard(Model model, HttpSession session) {
+        String role = (String) session.getAttribute("ROLE");
+        
+        if (role == null || !accessController.hasAccess(role, AccessController.RESOURCE_DASHBOARD)) {
+            return "redirect:/login"; 
+        }
+
         List<Product> products = updateController.getAllProductsForAdmin();
         long lowStockCount = products.stream().filter(Product::isBelowThreshold).count();
 
