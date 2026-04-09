@@ -1,4 +1,4 @@
-# Nardo Platform
+# Nardo's Platform
 
 A robust, Spring Boot-based e-commerce and inventory management platform. This application features a layered architecture that seamlessly bridges a web-based UI with persistent inventory, order, and payment processing.
 
