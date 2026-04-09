@@ -56,6 +56,7 @@ Update your database credentials in src/main/resources/application.properties.
 4. Access the Application:
 Open your browser and navigate to http://localhost:8080/ (or the port specified in your properties file).
 
+
 🧪 Testing
 To run the automated test suite, execute the following command:
 
@@ -67,8 +68,10 @@ On Mac/Linux:
 
 Test reports will be generated in index.html.
 
+
 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 
-If you are using a specific database (like MySQL, PostgreSQL, or H2), or a specific Java version, feel free to update those sections to accurately reflect your system!If you are using a specific database (like MySQL, PostgreSQL, or H2), or a specific Java version, feel free to update those sections to accurately reflect your system!
+
+If you are using a specific database (like MySQL, PostgreSQL, or H2), or a specific Java version, feel free to update those sections to accurately reflect your system.
